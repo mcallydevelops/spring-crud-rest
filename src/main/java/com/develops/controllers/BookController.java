@@ -24,7 +24,7 @@ public class BookController {
         headers.add("Content-Type", "application/json");
 
         Iterable<Book> books = bookRepo.findAll();
-        return new ResponseEntity<Iterable<Book>>(books, headers, HttpStatus.OK);
+        return new ResponseEntity<>(books, headers, HttpStatus.OK);
     }
 
     @GetMapping("/book")
@@ -33,9 +33,9 @@ public class BookController {
         headers.add("Content-Type", "application/json");
         Optional<Book> dbResult = bookRepo.findByIsn(isn);
         if(dbResult.isPresent()) {
-            return new ResponseEntity<Book>(dbResult.get(), headers, HttpStatus.OK);
+            return new ResponseEntity<>(dbResult.get(), headers, HttpStatus.OK);
         }
-        return new ResponseEntity<Book>(headers, HttpStatus.OK);
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
     @GetMapping("/book/isn/{isn}")
@@ -44,9 +44,9 @@ public class BookController {
         headers.add("Content-Type", "application/json");
         Optional<Book> dbResult = bookRepo.findByIsn(isn);
         if(dbResult.isPresent()) {
-            return new ResponseEntity<Book>(dbResult.get(), headers, HttpStatus.OK);
+            return new ResponseEntity<>(dbResult.get(), headers, HttpStatus.OK);
         }
-        return new ResponseEntity<Book>(headers, HttpStatus.OK);
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
     @PostMapping("/book")
