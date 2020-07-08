@@ -2,11 +2,11 @@ package com.develops.controllers;
 
 import com.develops.models.Book;
 import com.develops.repos.BookRepo;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -20,22 +20,33 @@ public class BookController {
 
     @GetMapping("/books")
     public ResponseEntity<Iterable<Book>> retrieveBooks() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+
         Iterable<Book> books = bookRepo.findAll();
-        return ResponseEntity.ok(books);
+        return new ResponseEntity<Iterable<Book>>(books, headers, HttpStatus.OK);
     }
 
     @GetMapping("/book")
     public ResponseEntity<Book> findByIdRequestParam(@RequestParam(value="isn") String isn) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
         Optional<Book> dbResult = bookRepo.findByIsn(isn);
-        Book result = dbResult.isPresent() ? dbResult.get() : new Book();
-        return ResponseEntity.ok(result);
+        if(dbResult.isPresent()) {
+            return new ResponseEntity<Book>(dbResult.get(), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<Book>(headers, HttpStatus.OK);
     }
 
     @GetMapping("/book/isn/{isn}")
     public ResponseEntity<Book> findByIdPathVariable(@PathVariable(value="isn") String isn) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
         Optional<Book> dbResult = bookRepo.findByIsn(isn);
-        Book result = dbResult.isPresent() ? dbResult.get() : new Book();
-        return ResponseEntity.ok(result);
+        if(dbResult.isPresent()) {
+            return new ResponseEntity<Book>(dbResult.get(), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<Book>(headers, HttpStatus.OK);
     }
 
     @PostMapping("/book")
@@ -46,8 +57,8 @@ public class BookController {
             Book updatedBook = dbResult.get();
             requestBook.setId(updatedBook.getId());
             requestBook.setIsn(updatedBook.getIsn());
-            Book savedBook = bookRepo.save(requestBook);
-            return ResponseEntity.ok(savedBook);
+            Book u = bookRepo.save(requestBook);
+            return ResponseEntity.ok(u);
         }
         Book savedBook = bookRepo.save(requestBook);
         return ResponseEntity.ok(savedBook);
