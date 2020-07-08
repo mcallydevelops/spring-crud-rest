@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class BookController {
@@ -25,20 +26,30 @@ public class BookController {
 
     @GetMapping("/book")
     public ResponseEntity<Book> findByIdRequestParam(@RequestParam(value="isn") String isn) {
-        Book response = bookRepo.findByIsn(isn);
-        return ResponseEntity.ok(response);
+        Optional<Book> dbResult = bookRepo.findByIsn(isn);
+        Book result = dbResult.isPresent() ? dbResult.get() : new Book();
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/book/isn/{isn}")
     public ResponseEntity<Book> findByIdPathVariable(@PathVariable(value="isn") String isn) {
-        Book response = bookRepo.findByIsn(isn);
-        return ResponseEntity.ok(response);
+        Optional<Book> dbResult = bookRepo.findByIsn(isn);
+        Book result = dbResult.isPresent() ? dbResult.get() : new Book();
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/book")
     public ResponseEntity<Book> insertBook(@RequestBody BookRequest bookRequest) {
-        Book book = new Book(bookRequest.getIsn(), bookRequest.getTitle(), bookRequest.getPublisher(), bookRequest.getPublishedDate());
-        Book savedBook = bookRepo.save(book);
+        Book requestBook = new Book(bookRequest.getIsn(), bookRequest.getTitle(), bookRequest.getPublisher(), bookRequest.getPublishedDate());
+        Optional<Book> dbResult = bookRepo.findByIsn(bookRequest.getIsn());
+        if(dbResult.isPresent()) {
+            Book updatedBook = dbResult.get();
+            requestBook.setId(updatedBook.getId());
+            requestBook.setIsn(updatedBook.getIsn());
+            Book savedBook = bookRepo.save(requestBook);
+            return ResponseEntity.ok(savedBook);
+        }
+        Book savedBook = bookRepo.save(requestBook);
         return ResponseEntity.ok(savedBook);
     }
 
